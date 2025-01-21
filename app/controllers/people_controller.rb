@@ -234,8 +234,8 @@ class PeopleController < CrudController
 
   def filtered_entries
     @chain = Person::Filter::Chain.new(person_filter_args)
-    @model_filter = ModelFilter.new(@chain, people_scope)
-    @model_filter.filter_all(@group, current_user, accessibles)
+    @model_filter = ModelFilter.new(@chain, people_scope, accessibles)
+    @model_filter.filtered_results
   end
 
   def person_filter_args
@@ -253,8 +253,8 @@ class PeopleController < CrudController
   end
 
   def accessibles
-    accessibles_class = @model_filter.required_abilities.include?(:full) ? PersonFullReadables : PersonReadables
-    ability = accessibles_class.new(current_user, !%w[deep layer].include?(@range) ? @group : nil, @model_filter.chain.roles_join)
+    accessibles_class = @chain.required_abilities.include?(:full) ? PersonFullReadables : PersonReadables
+    ability = accessibles_class.new(current_user, !%w[deep layer].include?(@range) ? @group : nil, @chain.roles_join)
     Person.accessible_by(ability).select(:contact_data_visible)
   end
 

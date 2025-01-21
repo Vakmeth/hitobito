@@ -1,27 +1,20 @@
 class ModelFilter
   extend ActiveSupport::Concern
 
-  attr_reader :group, :user, :accessibles, :chain, :filter_scope
+  attr_reader :accessibles, :chain, :filter_scope
 
-  def initialize(chain, filter_scope)
+  def initialize(chain, filter_scope, accessibles)
     @chain = chain
     @filter_scope = filter_scope
+    @accessibles = accessibles
   end
 
-  def filter_all(group, current_user, accessibles)
-    @group = group
-    @user = current_user
-    @accessibles = accessibles
+  def filtered_results
     filtered_accessibles.preload_groups.distinct
   end
 
   def filtered_accessibles
-    filtered = filter_with_selection.unscope(:select).select(:id).distinct
-    accessibles.where(id: filtered)
-  end
-
-  def filter_with_selection
-    @ids.present? ? filter.where(id: @ids) : filter
+    accessibles.where(id: filter.distinct)
   end
 
   def filter
@@ -34,9 +27,5 @@ class ModelFilter
                 .or(filter_scope.where(Role.arel_table[:archived_at].gt(Time.now.utc)))
                 .members
     end
-  end
-
-  def required_abilities
-    chain.required_abilities
   end
 end

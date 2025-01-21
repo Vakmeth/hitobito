@@ -37,7 +37,7 @@ class MailingLists::Subscribers
   end
 
   def people_as_configured
-      ModelFilter.new(@list.filter_chain, @people_scope).filter
+      ModelFilter.new(@list.filter_chain, @people_scope, @people_scope).filtered_results
       .joins(people_joins)
       .joins(subscription_joins)
       .where(subscriptions: {mailing_list_id: id})
