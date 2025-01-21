@@ -41,6 +41,7 @@ module Hitobito
     # Custom directories with classes and modules you want to be autoloadable.
     config.autoload_paths += %W( #{config.root}/app/abilities
                                  #{config.root}/app/domain
+                                 #{config.root}/app/domain/filter
                                  #{config.root}/app/jobs
                                  #{config.root}/app/serializers
                                  #{config.root}/app/utils

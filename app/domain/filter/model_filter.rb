@@ -1,15 +1,14 @@
 class ModelFilter
   extend ActiveSupport::Concern
 
-  attr_reader :type, :filter_id, :range, :name, :group, :user, :accessibles, :chain
+  attr_reader :type, :range, :name, :group, :user, :accessibles, :chain
 
   def initialize(type, parameters)
     @type = type
-    @filter_id = parameters[:filter_id]
     @range = parameters[:range]
     @name = parameters[:name]
     if type == FilterType::PERSON
-      @chain = Person::Filter::Chain.new(get_filter_params(filter_id, parameters))
+      @chain = Person::Filter::Chain.new(get_filter_params(parameters))
     end
   end
 
@@ -36,7 +35,6 @@ class ModelFilter
   def filter
     # When not filtering, the default is to exclude all passive and external people,
     # i.e. include only members
-
     if chain.present?
       chain.filter(list_range)
     else
@@ -57,11 +55,12 @@ class ModelFilter
     end
   end
 
-  def get_filter_params(filter_id, params)
+  def get_filter_params(params)
+    filter_id = params[:filter_id]
     if filter_id.nil?
       return params[:filters]
     end
-    PeopleFilter.find(params[:filter_id]).to_params
+    PeopleFilter.find(filter_id).to_params[:filters]
   end
 
   def required_abilities
