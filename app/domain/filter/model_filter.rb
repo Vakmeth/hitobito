@@ -1,24 +1,23 @@
 class ModelFilter
   extend ActiveSupport::Concern
 
-  attr_reader :type, :filter_id, :group, :user, :range, :name, :accessibles, :chain
+  attr_reader :type, :filter_id, :range, :name, :group, :user, :accessibles, :chain
 
-  def initialize(type, filter_id)
+  def initialize(type, parameters)
     @type = type
-    @filter_id = filter_id
-  end
-
-  def filter_all(parameters, group, current_user, accessibles)
-    @group = group
-    @user = current_user
+    @filter_id = parameters[:filter_id]
     @range = parameters[:range]
     @name = parameters[:name]
-    @accessibles = accessibles
     if type == FilterType::PERSON
-      filter_params = get_filter_params(filter_id, parameters)
-      @chain = Person::Filter::Chain.new(filter_params)
-      filtered_accessibles.preload_groups.distinct
+      @chain = Person::Filter::Chain.new(get_filter_params(filter_id, parameters))
     end
+  end
+
+  def filter_all(group, current_user, accessibles)
+    @group = group
+    @user = current_user
+    @accessibles = accessibles
+    filtered_accessibles.preload_groups.distinct
   end
 
   def filtered_accessibles

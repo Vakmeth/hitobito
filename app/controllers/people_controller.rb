@@ -232,9 +232,9 @@ class PeopleController < CrudController
   end
 
   def filtered_entries
-    @model_filter = ModelFilter.new(FilterType::PERSON, params[:filter_id])
+    @model_filter = ModelFilter.new(FilterType::PERSON, params)
 
-    filtered_results = @model_filter.filter_all(params, @group, current_user, accessibles)
+    filtered_results = @model_filter.filter_all(@group, current_user, accessibles)
     default_order(filtered_results)
   end
 
@@ -243,8 +243,8 @@ class PeopleController < CrudController
   end
 
   def accessibles
-    accessibles_class = chain.required_abilities.include?(:full) ? PersonFullReadables : PersonReadables
-    ability = accessibles_class.new(user, group_range? ? @group : nil, chain.roles_join)
+    accessibles_class = @model_filter.chain.required_abilities.include?(:full) ? PersonFullReadables : PersonReadables
+    ability = accessibles_class.new(current_user, @model_filter.group_range? ? @group : nil, @model_filter.chain.roles_join)
     Person.accessible_by(ability).select(:contact_data_visible)
   end
 
