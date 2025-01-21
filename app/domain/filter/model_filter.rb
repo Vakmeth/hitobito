@@ -10,11 +10,8 @@ class ModelFilter
   end
 
   def filtered_results
-    filtered_accessibles.preload_groups.distinct
-  end
-
-  def filtered_accessibles
-    accessibles.where(id: filter.distinct)
+    unscoped_filter = filter.unscope(:select).select(:id).distinct
+    accessibles.where(id: unscoped_filter)
   end
 
   def filter

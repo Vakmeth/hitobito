@@ -235,7 +235,7 @@ class PeopleController < CrudController
   def filtered_entries
     @chain = Person::Filter::Chain.new(person_filter_args)
     @model_filter = ModelFilter.new(@chain, people_scope, accessibles)
-    @model_filter.filtered_results
+    @model_filter.filtered_results.preload_groups.distinct
   end
 
   def person_filter_args
