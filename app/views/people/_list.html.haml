@@ -5,7 +5,7 @@
 
 - title @group.to_s
 
-- content_for(:filter, FilterNavigation::People.new(self, @group, @model_filter, @name).to_s)
+- content_for(:filter, FilterNavigation::People.new(self, @group, @model_filter).to_s)
 
 .pagination-bar
   = paginate @people

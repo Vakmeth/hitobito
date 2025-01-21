@@ -24,10 +24,6 @@ class ModelFilter
     @ids.present? ? filter.where(id: @ids) : filter
   end
 
-  def group_range?
-    !%w[deep layer].include?(range)
-  end
-
   def filter
     # When not filtering, the default is to exclude all passive and external people,
     # i.e. include only members

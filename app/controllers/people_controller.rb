@@ -165,6 +165,7 @@ class PeopleController < CrudController
   end
 
   def filter_entries
+    @range = params[:range]
     entries = add_table_display_to_query(default_order(filtered_entries), current_person)
     sort_by_sort_expression(entries)
   end
@@ -248,12 +249,12 @@ class PeopleController < CrudController
   end
 
   def multiple_groups
-    @model_filter.range == "deep" || @model_filter.range == "layer"
+    @range == "deep" || @range == "layer"
   end
 
   def accessibles
     accessibles_class = @model_filter.required_abilities.include?(:full) ? PersonFullReadables : PersonReadables
-    ability = accessibles_class.new(current_user, @model_filter.group_range? ? @group : nil, @model_filter.chain.roles_join)
+    ability = accessibles_class.new(current_user, !%w[deep layer].include?(@range) ? @group : nil, @model_filter.chain.roles_join)
     Person.accessible_by(ability).select(:contact_data_visible)
   end
 
@@ -263,7 +264,7 @@ class PeopleController < CrudController
   end
 
   def people_scope
-    case params[:range]
+    case @range
     when "deep"
       Person.in_or_below(group, @chain.roles_join)
     when "layer"
