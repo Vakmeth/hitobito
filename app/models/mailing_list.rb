@@ -175,7 +175,6 @@ class MailingList < ActiveRecord::Base
 
   def schedule_opt_in_cleanup
     return unless subscribable_mode_previously_was == "opt_out"
-
     Subscriptions::OptInCleanupJob.new(id).enqueue!
   end
 

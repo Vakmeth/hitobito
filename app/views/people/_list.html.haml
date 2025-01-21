@@ -5,24 +5,24 @@
 
 - title @group.to_s
 
-- content_for(:filter, FilterNavigation::People.new(self, @group, @person_filter).to_s)
+- content_for(:filter, FilterNavigation::People.new(self, @group, @model_filter).to_s)
 
 .pagination-bar
   = paginate @people
 
-  .pagination-info
-    - if @person_filter.all_count > 0
-      = t('.number_of_people_shown', count: @people.total_count)
-      - unless @person_filter.all_count == @people.total_count
-        = muted(t('.number_of_people_hidden', count: @person_filter.all_count - @people.total_count))
-    - else
-      = ti(:no_list_entries)
-
-    - if @person_add_requests.present?
-      = render 'person/add_requests/body_list'
-
-  - if @people.present?
-    = Dropdown::TableDisplays.new(self, @people).to_s
+  -# .pagination-info
+  -#   - if @person_filter.all_count > 0
+  -#     = t('.number_of_people_shown', count: @people.total_count)
+  -#     - unless @person_filter.all_count == @people.total_count
+  -#       = muted(t('.number_of_people_hidden', count: @person_filter.all_count - @people.total_count))
+  -#   - else
+  -#     = ti(:no_list_entries)
+  -#
+  -#   - if @person_add_requests.present?
+  -#     = render 'person/add_requests/body_list'
+  -#
+  -# - if @people.present?
+  -#   = Dropdown::TableDisplays.new(self, @people).to_s
 
 - if @people.total_count > 0
   = crud_table(data: { checkable: true }) do |t|
@@ -34,11 +34,11 @@
       %strong
         -# Any person listed can be shown
         = link_to(p.to_s(:list),
-                  @person_filter.multiple_groups ? group_person_path(p.default_group_id, p) : group_person_path(@group, p))
+                  multiple_groups ? group_person_path(p.default_group_id, p) : group_person_path(@group, p))
         %br/
         = muted p.additional_name
     - t.col(t.sort_header(:roles, Role.model_name.human(count: 2))) do |p|
-      = p.roles_short(@group, @person_filter.multiple_groups)
+      = p.roles_short(@group, multiple_groups)
     - t.col(Person.human_attribute_name(:emails)) do |p|
       = p.all_emails(!index_full_ability?)
     - t.col(PhoneNumber.model_name.human(count: 2)) do |p|

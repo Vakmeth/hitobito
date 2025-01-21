@@ -44,7 +44,7 @@ class PeopleController < CrudController
   before_render_show :load_person_add_requests, if: -> { html_request? }
   before_render_index :load_people_add_requests, if: -> { html_request? }
 
-  helper_method :list_filter_args
+  helper_method :list_filter_args, :multiple_groups
 
   def index # rubocop:disable Metrics/AbcSize we support a lot of formats, hence many code-branches
     respond_to do |format|
@@ -165,7 +165,7 @@ class PeopleController < CrudController
   end
 
   def filter_entries
-    entries = add_table_display_to_query(person_filter.entries, current_person)
+    entries = add_table_display_to_query(filtered_entries, current_person)
     sort_by_sort_expression(entries)
   end
 
@@ -231,8 +231,13 @@ class PeopleController < CrudController
     authorize!(:index_people, group)
   end
 
-  def person_filter
-    @person_filter ||= Person::Filter::List.new(@group, current_user, list_filter_args)
+  def filtered_entries
+    @model_filter = ModelFilter.new(FilterType::PERSON, params[:filter_id])
+    @model_filter.filter_all(params, @group, current_user)
+  end
+
+  def multiple_groups
+    @model_filter.range == "deep" || @model_filter.range == "layer"
   end
 
   def send_login_job(entry, current_user)

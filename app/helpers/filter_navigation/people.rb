@@ -7,14 +7,14 @@ module FilterNavigation
   class People < Base
     include ParamConverters
 
-    attr_reader :group, :filter
+    attr_reader :group, :filter, :range, :name
 
     delegate :can?, to: :template
 
-    def initialize(template, group, filter)
+    def initialize(template, group, model_filter)
       super(template)
       @group = group
-      @filter = filter
+      @filter = model_filter
       init_kind_filter_names
       init_labels
       init_kind_items
@@ -51,8 +51,8 @@ module FilterNavigation
         @active_label = main_filter_name
       elsif name.present?
         dropdown.activate(name)
-      elsif filter.chain.present?
-        dropdown.activate(translate(:custom_filter))
+      # elsif filter.chain.present?
+      #   dropdown.activate(translate(:custom_filter))
       else
         @active_label = main_filter_name
       end
@@ -122,7 +122,7 @@ module FilterNavigation
     def new_group_people_filter_path
       template.new_group_people_filter_path(
         group.id,
-        range: filter.range,
+        range: range,
         filters: filter.chain.to_params
       )
     end
