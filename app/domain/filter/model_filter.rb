@@ -1,7 +1,7 @@
 class ModelFilter
   extend ActiveSupport::Concern
 
-  attr_reader :type, :range, :name, :group, :user, :accessibles, :chain
+  attr_reader :type, :range, :group, :user, :accessibles, :chain, :name
 
   def initialize(type, parameters)
     @type = type
@@ -60,6 +60,7 @@ class ModelFilter
     if filter_id.nil?
       return params[:filters]
     end
+    @name = PeopleFilter.find(filter_id).name
     PeopleFilter.find(filter_id).to_params[:filters]
   end
 

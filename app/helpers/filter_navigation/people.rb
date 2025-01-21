@@ -51,8 +51,8 @@ module FilterNavigation
         @active_label = main_filter_name
       elsif name.present?
         dropdown.activate(name)
-      # elsif filter.chain.present?
-      #   dropdown.activate(translate(:custom_filter))
+      elsif filter.chain.present?
+        dropdown.activate(translate(:custom_filter))
       else
         @active_label = main_filter_name
       end
