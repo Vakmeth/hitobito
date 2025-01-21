@@ -14,6 +14,8 @@ class ModelFilter
     accessibles.where(id: unscoped_filter)
   end
 
+  private
+
   def filter
     # When not filtering, the default is to exclude all passive and external people,
     # i.e. include only members

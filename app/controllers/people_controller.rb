@@ -248,6 +248,17 @@ class PeopleController < CrudController
     end
   end
 
+  def people_scope
+    case @range
+    when "deep"
+      Person.in_or_below(group, @chain.roles_join)
+    when "layer"
+      Person.in_layer(group, join: @chain.roles_join)
+    else
+      Person.in_group(group, @chain.roles_join)
+    end
+  end
+
   def multiple_groups
     @range == "deep" || @range == "layer"
   end
@@ -261,17 +272,6 @@ class PeopleController < CrudController
   def default_order(entries)
     entries = entries.order_by_role if Settings.people.default_sort == "role"
     entries.order_by_name
-  end
-
-  def people_scope
-    case @range
-    when "deep"
-      Person.in_or_below(group, @chain.roles_join)
-    when "layer"
-      Person.in_layer(group, join: @chain.roles_join)
-    else
-      Person.in_group(group, @chain.roles_join)
-    end
   end
 
   def send_login_job(entry, current_user)
