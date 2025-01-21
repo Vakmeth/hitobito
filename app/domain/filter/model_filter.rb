@@ -63,4 +63,8 @@ class ModelFilter
     end
     PeopleFilter.find(params[:filter_id]).to_params
   end
+
+  def required_abilities
+    chain.required_abilities
+  end
 end

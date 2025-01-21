@@ -243,7 +243,7 @@ class PeopleController < CrudController
   end
 
   def accessibles
-    accessibles_class = @model_filter.chain.required_abilities.include?(:full) ? PersonFullReadables : PersonReadables
+    accessibles_class = @model_filter.required_abilities.include?(:full) ? PersonFullReadables : PersonReadables
     ability = accessibles_class.new(current_user, @model_filter.group_range? ? @group : nil, @model_filter.chain.roles_join)
     Person.accessible_by(ability).select(:contact_data_visible)
   end
