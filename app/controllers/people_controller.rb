@@ -165,7 +165,7 @@ class PeopleController < CrudController
   end
 
   def filter_entries
-    entries = add_table_display_to_query(filtered_entries, current_person)
+    entries = add_table_display_to_query(default_order(filtered_entries), current_person)
     sort_by_sort_expression(entries)
   end
 
@@ -232,19 +232,19 @@ class PeopleController < CrudController
   end
 
   def filtered_entries
-    @model_filter = ModelFilter.new(Person::Filter::Chain.new(person_filter_args), params)
-
-    filtered_results = @model_filter.filter_all(@group, current_user, accessibles)
-    default_order(filtered_results)
+    @chain = Person::Filter::Chain.new(person_filter_args)
+    @model_filter = ModelFilter.new(@chain, people_scope)
+    @model_filter.filter_all(@group, current_user, accessibles)
   end
 
   def person_filter_args
-    filter_id = params[:filter_id]
-    if filter_id.nil?
-      return params[:filters]
+    if params[:filter_id]
+      filter = PeopleFilter.for_group(group).find(params[:filter_id])
+      @name = filter.name
+      filter.to_params[:filters]
+    else
+      params
     end
-    @name = PeopleFilter.find(filter_id).name
-    PeopleFilter.find(filter_id).to_params[:filters]
   end
 
   def multiple_groups
@@ -260,6 +260,17 @@ class PeopleController < CrudController
   def default_order(entries)
     entries = entries.order_by_role if Settings.people.default_sort == "role"
     entries.order_by_name
+  end
+
+  def people_scope
+    case params[:range]
+    when "deep"
+      Person.in_or_below(group, @chain.roles_join)
+    when "layer"
+      Person.in_layer(group, join: @chain.roles_join)
+    else
+      Person.in_group(group, @chain.roles_join)
+    end
   end
 
   def send_login_job(entry, current_user)

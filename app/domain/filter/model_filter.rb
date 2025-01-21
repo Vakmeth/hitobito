@@ -1,12 +1,11 @@
 class ModelFilter
   extend ActiveSupport::Concern
 
-  attr_reader :range, :group, :user, :accessibles, :chain, :name
+  attr_reader :group, :user, :accessibles, :chain, :filter_scope
 
-  def initialize(chain, parameters={})
-    @range = parameters[:range]
-    @name = parameters[:name]
+  def initialize(chain, filter_scope)
     @chain = chain
+    @filter_scope = filter_scope
   end
 
   def filter_all(group, current_user, accessibles)
@@ -33,32 +32,12 @@ class ModelFilter
     # When not filtering, the default is to exclude all passive and external people,
     # i.e. include only members
     if chain.present?
-      chain.filter(list_range)
+      chain.filter(filter_scope)
     else
-      list_range.where(roles: {archived_at: nil})
-                .or(list_range.where(Role.arel_table[:archived_at].gt(Time.now.utc)))
+      filter_scope.where(roles: {archived_at: nil})
+                .or(filter_scope.where(Role.arel_table[:archived_at].gt(Time.now.utc)))
                 .members
     end
-  end
-
-  def list_range
-    case range
-    when "deep"
-      Person.in_or_below(group, chain.roles_join)
-    when "layer"
-      Person.in_layer(group, join: chain.roles_join)
-    else
-      Person.in_group(group, chain.roles_join)
-    end
-  end
-
-  def get_filter_params(params)
-    filter_id = params[:filter_id]
-    if filter_id.nil?
-      return params[:filters]
-    end
-    @name = PeopleFilter.find(filter_id).name
-    PeopleFilter.find(filter_id).to_params[:filters]
   end
 
   def required_abilities

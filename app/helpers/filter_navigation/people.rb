@@ -119,7 +119,7 @@ module FilterNavigation
     def new_group_people_filter_path
       template.new_group_people_filter_path(
         group.id,
-        range: filter.range,
+        range: params[:range],
         filters: filter.chain.to_params
       )
     end
