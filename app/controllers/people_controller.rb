@@ -233,11 +233,24 @@ class PeopleController < CrudController
 
   def filtered_entries
     @model_filter = ModelFilter.new(FilterType::PERSON, params[:filter_id])
-    @model_filter.filter_all(params, @group, current_user)
+
+    filtered_results = @model_filter.filter_all(params, @group, current_user, accessibles)
+    default_order(filtered_results)
   end
 
   def multiple_groups
     @model_filter.range == "deep" || @model_filter.range == "layer"
+  end
+
+  def accessibles
+    accessibles_class = chain.required_abilities.include?(:full) ? PersonFullReadables : PersonReadables
+    ability = accessibles_class.new(user, group_range? ? @group : nil, chain.roles_join)
+    Person.accessible_by(ability).select(:contact_data_visible)
+  end
+
+  def default_order(entries)
+    entries = entries.order_by_role if Settings.people.default_sort == "role"
+    entries.order_by_name
   end
 
   def send_login_job(entry, current_user)

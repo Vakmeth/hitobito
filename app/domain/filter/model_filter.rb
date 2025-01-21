@@ -1,28 +1,24 @@
 class ModelFilter
   extend ActiveSupport::Concern
 
-  attr_reader :type, :filter_id, :group, :user, :range, :name, :chain
+  attr_reader :type, :filter_id, :group, :user, :range, :name, :accessibles, :chain
 
   def initialize(type, filter_id)
     @type = type
     @filter_id = filter_id
   end
 
-  def filter_all(parameters, group, current_user)
+  def filter_all(parameters, group, current_user, accessibles)
     @group = group
     @user = current_user
     @range = parameters[:range]
     @name = parameters[:name]
+    @accessibles = accessibles
     if type == FilterType::PERSON
       filter_params = get_filter_params(filter_id, parameters)
       @chain = Person::Filter::Chain.new(filter_params)
-      default_order(filtered_accessibles.preload_groups.distinct)
+      filtered_accessibles.preload_groups.distinct
     end
-  end
-
-  def default_order(entries)
-    entries = entries.order_by_role if Settings.people.default_sort == "role"
-    entries.order_by_name
   end
 
   def filtered_accessibles
@@ -34,22 +30,8 @@ class ModelFilter
     @ids.present? ? filter.where(id: @ids) : filter
   end
 
-  def accessibles
-    ability = accessibles_class.new(user, group_range? ? @group : nil, chain.roles_join)
-    Person.accessible_by(ability).select(:contact_data_visible)
-  end
-
   def group_range?
     !%w[deep layer].include?(range)
-  end
-
-  def accessibles_class
-    abilities = chain.required_abilities
-    if abilities.include?(:full)
-      PersonFullReadables
-    else
-      PersonReadables
-    end
   end
 
   def filter

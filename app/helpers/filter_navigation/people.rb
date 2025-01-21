@@ -7,7 +7,7 @@ module FilterNavigation
   class People < Base
     include ParamConverters
 
-    attr_reader :group, :filter, :range, :name
+    attr_reader :group, :filter
 
     delegate :can?, to: :template
 
@@ -122,7 +122,7 @@ module FilterNavigation
     def new_group_people_filter_path
       template.new_group_people_filter_path(
         group.id,
-        range: range,
+        range: filter.range,
         filters: filter.chain.to_params
       )
     end
