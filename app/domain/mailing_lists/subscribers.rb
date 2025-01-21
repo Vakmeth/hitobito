@@ -37,7 +37,7 @@ class MailingLists::Subscribers
   end
 
   def people_as_configured
-    filter = ModelFilter.new
+    filter = ModelFilter.new(@list.filter_chain)
     filter.chain.filter(@people_scope)
       .joins(people_joins)
       .joins(subscription_joins)

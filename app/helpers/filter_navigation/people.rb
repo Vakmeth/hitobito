@@ -7,22 +7,19 @@ module FilterNavigation
   class People < Base
     include ParamConverters
 
-    attr_reader :group, :filter
+    attr_reader :group, :filter, :name
 
     delegate :can?, to: :template
 
-    def initialize(template, group, model_filter)
+    def initialize(template, group, model_filter, name)
       super(template)
       @group = group
       @filter = model_filter
+      @name = name
       init_kind_filter_names
       init_labels
       init_kind_items
       init_dropdown_links
-    end
-
-    def name
-      filter.name
     end
 
     def match

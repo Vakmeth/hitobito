@@ -232,10 +232,19 @@ class PeopleController < CrudController
   end
 
   def filtered_entries
-    @model_filter = ModelFilter.new(FilterType::PERSON, params)
+    @model_filter = ModelFilter.new(Person::Filter::Chain.new(person_filter_args), params)
 
     filtered_results = @model_filter.filter_all(@group, current_user, accessibles)
     default_order(filtered_results)
+  end
+
+  def person_filter_args
+    filter_id = params[:filter_id]
+    if filter_id.nil?
+      return params[:filters]
+    end
+    @name = PeopleFilter.find(filter_id).name
+    PeopleFilter.find(filter_id).to_params[:filters]
   end
 
   def multiple_groups
