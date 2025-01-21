@@ -3,11 +3,11 @@ class ModelFilter
 
   attr_reader :type, :range, :group, :user, :accessibles, :chain, :name
 
-  def initialize(type, parameters)
+  def initialize(type=FilterType::PERSON, parameters={})
     @type = type
     @range = parameters[:range]
-    @name = parameters[:name]
     if type == FilterType::PERSON
+      @name = parameters[:name]
       @chain = Person::Filter::Chain.new(get_filter_params(parameters))
     end
   end
